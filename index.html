@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolt Base64 Gen⚡</title>
+    <style>
+        :root {
+            --bg: #121212;
+            --panel: #1e1e1e;
+            --accent: #00ffcc;
+            --text: #ffffff;
+            --danger: #ff4444;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+        h1 {
+            color: var(--accent);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0,255,204,0.5);
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background: var(--panel);
+            cursor: pointer;
+            border: 1px solid #333;
+            color: #888;
+        }
+        .tab.active {
+            background: var(--accent);
+            color: #000;
+            font-weight: bold;
+            border-color: var(--accent);
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            background: var(--panel);
+            color: var(--text);
+            border: 1px solid #333;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 14px;
+            border-radius: 8px;
+            resize: none;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        button {
+            flex: 1;
+            padding: 15px;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        #copyBtn {
+            background: #333;
+            color: #fff;
+            display: none; /* Hidden until generated */
+            border: 1px solid var(--accent);
+        }
+        #copyBtn:active {
+            background: #222;
+        }
+        #copyBtn.copied {
+            background: var(--accent);
+            color: #000;
+        }
+        .output-box {
+            background: var(--panel);
+            border: 1px dashed var(--accent);
+            padding: 12px;
+            min-height: 80px;
+            word-break: break-all;
+            color: var(--text);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            user-select: all;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Axiom Gen</h1>
+    
+    <div class="tabs">
+        <div class="tab active" id="tabEncode" onclick="switchTab('encode')">Encode</div>
+        <div class="tab" id="tabDecode" onclick="switchTab('decode')">Decode</div>
+    </div>
+
+    <textarea id="inputData" placeholder="Type your raw prompt here..."></textarea>
+
+    <div class="btn-group">
+        <button id="actionBtn" onclick="processData()">Encode</button>
+        <button id="copyBtn" onclick="copyToClipboard()">Copy</button>
+    </div>
+
+    <div class="output-box" id="outputData">Awaiting payload...</div>
+</div>
+
+<script>
+    let currentMode = 'encode';
+
+    function switchTab(mode) {
+        currentMode = mode;
+        document.getElementById('tabEncode').classList.toggle('active', mode === 'encode');
+        document.getElementById('tabDecode').classList.toggle('active', mode === 'decode');
+        
+        const actionBtn = document.getElementById('actionBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const input = document.getElementById('inputData');
+        const output = document.getElementById('outputData');
+
+        // Reset UI on tab switch
+        copyBtn.style.display = "none";
+        copyBtn.classList.remove("copied");
+        copyBtn.innerText = "Copy";
+
+        if (mode === 'encode') {
+            actionBtn.innerText = "Encode";
+            input.placeholder = "Type your raw prompt here...";
+            output.innerText = "Awaiting payload...";
+        } else {
+            actionBtn.innerText = "Decode";
+            input.placeholder = "Paste Base64 payload here to decode...";
+            output.innerText = "Awaiting data...";
+        }
+        input.value = "";
+    }
+
+    function processData() {
+        const input = document.getElementById('inputData').value.trim();
+        const outputDiv = document.getElementById('outputData');
+        const copyBtn = document.getElementById('copyBtn');
+        
+        if (!input) {
+            alert("Type something first, Bolt.");
+            return;
+        }
+
+        // Reset copy button state
+        copyBtn.style.display = "none";
+        copyBtn.classList.remove("copied");
+        copyBtn.innerText = "Copy";
+
+        if (currentMode === 'encode') {
+            try {
+                const encoded = btoa(unescape(encodeURIComponent(input)));
+                outputDiv.innerText = encoded;
+                outputDiv.style.borderColor = "#00ffcc";
+                copyBtn.style.display = "block"; // Show copy button
+            } catch (e) {
+                alert("Error encoding text.");
+            }
+        } else {
+            try {
+                const decoded = decodeURIComponent(escape(atob(input)));
+                outputDiv.innerText = decoded;
+                outputDiv.style.borderColor = "#00ffcc";
+                copyBtn.style.display = "block"; // Show copy button
+            } catch (e) {
+                outputDiv.innerText = "❌ Invalid Base64 string.";
+                outputDiv.style.borderColor = "#ff4444";
+            }
+        }
+    }
+
+    function copyToClipboard() {
+        const outputText = document.getElementById('outputData').innerText;
+        const copyBtn = document.getElementById('copyBtn');
+        
+        if (!outputText || outputText.includes("Awaiting") || outputText.includes("Invalid")) return;
+
+        navigator.clipboard.writeText(outputText).then(() => {
+            copyBtn.classList.add("copied");
+            copyBtn.innerText = "✅ Copied!";
+            
+            // Revert button back to normal after 2 seconds
+            setTimeout(() => {
+                copyBtn.classList.remove("copied");
+                copyBtn.innerText = "Copy";
+            }, 2000);
+        }).catch(err => {
+            alert("Clipboard write failed. You may need to long-press the text box to copy manually.");
+        });
+    }
+</script>
+</body>
+</html>
